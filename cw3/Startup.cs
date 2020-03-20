@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using cw3.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -25,13 +26,18 @@ namespace cw3
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //metody definiujące LifeTime naszych obiektów
+            //services.AddScoped() w ramach tej samej komunikacji http dla tej samej sesji bedzie zwracana ta smaa instancja
+           // services.AddSingleton() bedzie tworzona TYLKO JEDNA instancja takiej klasy i ona bedzie zwracana
+            services.AddTransient<IDbService, OracleDbService>(); //za kazdym razem kiedy przychodzi nowe żądanie bedzie tworzona instancja klasy OracleDbService
             services.AddControllers(); //zarejestrowanie kontrolerow z widokami i stronami
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-         
+
+            app.UseDeveloperExceptionPage(); //zwraca stronę z dokładnym opisem błędów
           
 
             app.UseRouting();
