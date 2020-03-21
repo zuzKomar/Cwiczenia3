@@ -7,6 +7,7 @@ namespace cw3.Services
     {
         public IEnumerable<Student> GetStudents()
         {
+            //real db connection
             throw new System.NotImplementedException();
         }
     }

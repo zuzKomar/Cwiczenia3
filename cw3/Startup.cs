@@ -24,12 +24,13 @@ namespace cw3
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)//globalny panel konfiguracji aplikacji
         {
-            //metody definiujące LifeTime naszych obiektów
+            //metody definiujące LifeTime(cykl życia) naszych obiektów
             //services.AddScoped() w ramach tej samej komunikacji http dla tej samej sesji bedzie zwracana ta smaa instancja
-           // services.AddSingleton() bedzie tworzona TYLKO JEDNA instancja takiej klasy i ona bedzie zwracana
-            services.AddTransient<IDbService, OracleDbService>(); //za kazdym razem kiedy przychodzi nowe żądanie bedzie tworzona instancja klasy OracleDbService
+            services.AddSingleton<IDbService, MockDbService>(); //bedzie tworzona TYLKO JEDNA instancja takiej klasy i ona bedzie zwracana
+           //mechanizm wstrzykiwania zależności-> Dependency Injection->najlepiej operować na interfejsac
+           // services.AddTransient<IDbService, OracleDbService>(); //za kazdym razem kiedy przychodzi nowe żądanie bedzie tworzona instancja klasy OracleDbService
             services.AddControllers(); //zarejestrowanie kontrolerow z widokami i stronami
         }
 

@@ -10,7 +10,7 @@ namespace cw3.Controllers
     [ApiController]
     public class StudentsController : ControllerBase
     {
-        private IDbService _dbService;
+        private readonly IDbService _dbService;
 
         public StudentsController(IDbService service)
         {
@@ -46,31 +46,38 @@ namespace cw3.Controllers
         [HttpPost]
         public IActionResult CreateStudent(Student student)
         {
-            student.IndexNumber = $"s{new Random().Next(1, 20000)}";
+            student.IndexNumber = $"s{new Random().Next(1, 20000)}";//generuje numer indeksu
             return Ok(student);
         }
 
         [HttpPut]
-
-        public IActionResult UpdateInfo(string nazwisko)
+        public IActionResult UpdateInfo(Student s)
         {
-            if (nazwisko == "Kowalski")
+            if (s.LastName == "Kowalski")
             {
-                return Ok("To on!");
+                s.IndexNumber = "s00001";
+                return Ok(s);
             }
             else
             {
-                return NotFound("To nie on");
+                return NotFound("Nie wprowadzono zmian");
             }
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+        [HttpDelete]
+
+        public IActionResult DeleteStudent(Student s)
+        {
+            if (s.IdStudent == 2)
+            {
+                DeleteStudent(s);
+                return Ok();
+            }
+            else
+            {
+                return NotFound("Nie usunięto studenta");
+            }
+        }
+     
     }
 }
