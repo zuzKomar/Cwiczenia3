@@ -1,5 +1,4 @@
-﻿using System.Security.Principal;
-using Microsoft.AspNetCore.Mvc;
+﻿
 
 namespace cw3.Models
 {
@@ -9,9 +8,8 @@ namespace cw3.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string BirthDate { get; set; }
-        public string StudiesName { get; set; }
-        public int SemestrNumber { get; set; }
-        public string StartDate { get; set; }
+        public string StudiesName{ get; set; }
+        public string Semester { get; set; }
 
     }
 }

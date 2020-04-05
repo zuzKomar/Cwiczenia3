@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using cw3.Models;
-using cw3.Services;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -12,15 +11,9 @@ namespace cw3.Controllers
     [ApiController]
     public class StudentsController : ControllerBase
     {
-        private readonly IDbService _dbService;
 
         private const string ConString = "Data Source=db-mssql;Initial Catalog=s17301;Integrated Security=True";
-
-        public StudentsController(IDbService service)
-        {
-            _dbService = service;
-        }
-
+        
          [HttpPost]
          public IActionResult CreateStudent(Student student)
          {
@@ -61,7 +54,7 @@ namespace cw3.Controllers
                     st.LastName = dr["LastName"].ToString();
                     st.BirthDate = dr["BirthDate"].ToString();
                     st.StudiesName = dr["Name"].ToString();
-                    st.SemestrNumber = int.Parse(dr["SemestrNumber"].ToString());
+                    st.Semester = dr["SemestrNumber"].ToString();
                     result.Add(st);
                 }
             }
@@ -86,8 +79,8 @@ namespace cw3.Controllers
                     st.IndexNumber = dr["IndexNumber"].ToString();
                     st.FirstName = dr["FirstName"].ToString();
                     st.LastName = dr["LastName"].ToString();
-                    st.SemestrNumber = int.Parse(dr["SemestrNumber"].ToString());
-                    st.StartDate = dr["StartDate"].ToString();
+                    st.Semester = dr["SemestrNumber"].ToString();
+                  //  st.StartDate = dr["StartDate"].ToString();
                     return Ok(st);
                 }
             }
@@ -130,5 +123,3 @@ namespace cw3.Controllers
 //
 //     return NotFound("Nie znaleziono studenta");
 // }
-
-//3. żądanie POST

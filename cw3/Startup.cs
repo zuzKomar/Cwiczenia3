@@ -1,8 +1,10 @@
+using cw3.DAL;
 using cw3.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace cw3
 {
@@ -19,10 +21,11 @@ namespace cw3
         public void ConfigureServices(IServiceCollection services)//globalny panel konfiguracji aplikacji
         {
             //metody definiujące LifeTime(cykl życia) naszych obiektów
+            
             //services.AddScoped() w ramach tej samej komunikacji http dla tej samej sesji bedzie zwracana ta smaa instancja
             services.AddSingleton<IDbService, MockDbService>(); //bedzie tworzona TYLKO JEDNA instancja takiej klasy i ona bedzie zwracana
-           //mechanizm wstrzykiwania zależności-> Dependency Injection->najlepiej operować na interfejsac
-           // services.AddTransient<IDbService, OracleDbService>(); //za kazdym razem kiedy przychodzi nowe żądanie bedzie tworzona instancja klasy OracleDbService
+
+            services.AddTransient<IStudentDbService, SqlServerStudentDbService>(); 
             services.AddControllers(); //zarejestrowanie kontrolerow z widokami i stronami
         }
 
@@ -30,16 +33,14 @@ namespace cw3
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 
-            app.UseDeveloperExceptionPage(); //zwraca stronę z dokładnym opisem błędów
-          
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage(); //zwraca stronę z dokładnym opisem błędów
+            }
+            
+            app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.Use(async (contex, c) =>
-            {
-                contex.Response.Headers.Add("Secret", "1234");
-                await c.Invoke(); //przepuszczenie żądania
-            });
 
             app.UseAuthorization();
 
