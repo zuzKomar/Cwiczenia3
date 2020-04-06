@@ -50,6 +50,7 @@ namespace cw3.Controllers
                 while (dr.Read())
                 {
                     var st = new Student();
+                    st.IndexNumber = dr["IndexNumber"].ToString();
                     st.FirstName = dr["FirstName"].ToString(); //wczytanie imienia
                     st.LastName = dr["LastName"].ToString();
                     st.BirthDate = dr["BirthDate"].ToString();
@@ -68,20 +69,24 @@ namespace cw3.Controllers
             using (var com = new SqlCommand())                  //zapytanie SQL wysylane do serwera
             {
                 com.Connection = con;
-                com.CommandText = "SELECT * FROM ENROLLMENT E, STUDENT S WHERE S.IDENROLLMENT = E.IDENROLLMENT AND S.INDEXNUMBER =@index";
+                com.CommandText =
+                    "select Student.IndexNumber, Student.FirstName, Student.LastName, Studies.Name, convert(varchar, Enrollment.StartDate, 105) as StartDate, Enrollment.Semester from dbo.Student inner join Enrollment on Enrollment.IdEnrollment = Student.IdEnrollment inner join Studies on Studies.IdStudy = Enrollment.IdStudy where Student.IndexNumber = @index";
                 com.Parameters.AddWithValue("index", indexNumber);       
                 
                 con.Open();
                 var dr = com.ExecuteReader();
                 if (dr.Read())
                 {
-                    var st = new Student();
-                    st.IndexNumber = dr["IndexNumber"].ToString();
-                    st.FirstName = dr["FirstName"].ToString();
-                    st.LastName = dr["LastName"].ToString();
-                    st.Semester = dr["SemestrNumber"].ToString();
-                  //  st.StartDate = dr["StartDate"].ToString();
-                    return Ok(st);
+                    var st = new Student { 
+                    IndexNumber = dr["IndexNuber"].ToString(),
+                    FirstName = dr["FirstName"].ToString(),
+                    LastName = dr["LastName"].ToString(),
+                    BirthDate = dr["BirthDate"].ToString(),
+                    StudiesName = dr["Name"].ToString(),
+                    Semester = dr["SemestrNumber"].ToString(),
+                    };
+
+                return Ok(st);
                 }
             }
             return NotFound("Nie znaleziono studenta o podanym numerze indeksu.");
