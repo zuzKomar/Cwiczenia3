@@ -34,7 +34,7 @@ namespace cw3.Handlers
 
            
             
-            //TODO chec credentials in DB-> zakładamy, że są poprawne
+          //  //TODO chec credentials in DB-> zakładamy, że są poprawne
 
             var claims = new[] //informacje o użytkowniku 
             {

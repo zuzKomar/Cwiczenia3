@@ -117,7 +117,7 @@ namespace cw3.Services
 
         public Student GetStudent(string id)
         {
-            throw new NotImplementedException();
+          //  throw new NotImplementedException();
         }
     }
 }
