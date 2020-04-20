@@ -114,5 +114,10 @@ namespace cw3.Services
                 com.Transaction.Commit();
             }
         }
+
+        public Student GetStudent(string id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using cw3.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -34,15 +35,17 @@ namespace cw3.Controllers
         }
 
         [HttpGet]
+        //[Authorize] //metoda dostepna tylko dla zalogowanych userów 
         public IActionResult GetStudents()
         {
+            
             var result = new List<Student>();
             using (var con = new SqlConnection(ConString)) //polacznie do bazy
             using (var com = new SqlCommand()) //zapytanie SQL wysylane do serwera
             { 
                 com.Connection = con;
                 com.CommandText =
-                   "select s.FirstName, s.LastName, s.BirthDate, e.Semester, st.Name from Student s, Enrollment e, Studies st where s.IdEnrollment=e.IdEnrollment AND e.IdStudy=st.IdStudy;";
+                   "select s.IndexNumber ,s.FirstName, s.LastName, s.BirthDate, e.Semester, st.Name from Student s, Enrollment e, Studies st where s.IdEnrollment=e.IdEnrollment AND e.IdStudy=st.IdStudy;";
 
                 con.Open();                     //otwarcie połączenia do bazy danych
               
@@ -51,14 +54,16 @@ namespace cw3.Controllers
                 {
                     var st = new Student();
                     st.IndexNumber = dr["IndexNumber"].ToString();
-                    st.FirstName = dr["FirstName"].ToString(); //wczytanie imienia
+                    st.FirstName = dr["FirstName"].ToString(); 
                     st.LastName = dr["LastName"].ToString();
                     st.BirthDate = dr["BirthDate"].ToString();
                     st.StudiesName = dr["Name"].ToString();
                     st.Semester = dr["SemestrNumber"].ToString();
                     result.Add(st);
                 }
+                con.Close();
             }
+            
             return Ok(result);
         }
 
@@ -70,7 +75,7 @@ namespace cw3.Controllers
             {
                 com.Connection = con;
                 com.CommandText =
-                    "select Student.IndexNumber, Student.FirstName, Student.LastName, Studies.Name, convert(varchar, Enrollment.StartDate, 105) as StartDate, Enrollment.Semester from dbo.Student inner join Enrollment on Enrollment.IdEnrollment = Student.IdEnrollment inner join Studies on Studies.IdStudy = Enrollment.IdStudy where Student.IndexNumber = @index";
+                    "select s.IndexNumber, s.FirstName, s.LastName, s.Name, convert(varchar, e.StartDate, 105) as e.StartDate, e.Semester from dbo.Student s inner join Enrollment e on e.IdEnrollment = s.IdEnrollment inner join Studies st on st.IdStudy = e.IdStudy where s.IndexNumber = @index";
                 com.Parameters.AddWithValue("index", indexNumber);       
                 
                 con.Open();
@@ -86,6 +91,7 @@ namespace cw3.Controllers
                     Semester = dr["SemestrNumber"].ToString(),
                     };
 
+                    con.Close();
                 return Ok(st);
                 }
             }
@@ -93,38 +99,3 @@ namespace cw3.Controllers
         }
     }
 }
-// if (dr["IndexNumber"] == DBNull.Value) //NULL bazodanowy
-
-                //com.ExecuteScalar();             odczytanie pojedynczej wartosci
-                //com.ExecuteReader();             pozwala na uzyskanie strumienia i odczytanie danych z bazy danych
-                //com.ExecuteNonQuery();           uruchmonienie zapytania na ktore nie oczekujemy odpowiedzi<inert,update,delete>, zwraca liczbe zmodyfikowanych rekordow
-                //con.Dispose();                   zamkniecie polaczenia z bazą
-                
-                
-//[HttpGet]
-// public IActionResult GetStudent(string orderBy)
-// {
-//     if (orderBy == "lastname")
-//     {
-//         return Ok(_dbService.GetStudents().OrderBy(s => s.LastName));
-//     }
-//
-//     return Ok(_dbService.GetStudents());
-// }
-
-
-// //1. URL segment
-// [HttpGet("{id}")]
-// public IActionResult GetStudent(int id)
-// {
-//     if (id == 1)
-//     {
-//         return Ok("Kowalski");
-//     }
-//     else if (id == 2)
-//     {
-//         return Ok("Malewski");
-//     }
-//
-//     return NotFound("Nie znaleziono studenta");
-// }
