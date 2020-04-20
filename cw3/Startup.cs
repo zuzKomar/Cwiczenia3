@@ -27,7 +27,6 @@ namespace cw3
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)//globalny panel konfiguracji aplikacji
         {
          //   services.AddAuthentication("AuthenticationBasic")
@@ -42,7 +41,7 @@ namespace cw3
                       ValidateAudience = true, 
                       ValidateLifetime = true,
                       ValidAudience = "Students",
-                      ValidIssuer = "IndeksNumber",
+                      ValidIssuer = "Ja",
                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]))
 
                   };

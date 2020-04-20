@@ -85,8 +85,10 @@ namespace cw3.Services
             }
         }
         
-        public void PromoteStudents(PromoteStudentRequest request)
+        public IActionResult PromoteStudents(PromoteStudentRequest request)
         {
+            Enrollment response = null;
+            ObjectResult result;
             using (var con = new SqlConnection())
             using (var com = new SqlCommand())
             {
@@ -103,16 +105,48 @@ namespace cw3.Services
                     var reader = com.ExecuteReader();
                     if (!reader.Read())
                     {
+                        reader.Close();
                         com.Transaction.Rollback();
+                        result = new ObjectResult("Studia nie istnieją");
+                        result.StatusCode = 404;
+                        return result;
                     }
+                    reader.Close();
+                    com.CommandText = "exec PromoteStudents @name, @semester";
+                    com.Parameters.AddWithValue("semestetr", request.Semester);
+                    com.Parameters.AddWithValue("name", request.StudiesName);
+                    com.ExecuteNonQuery();
                     
+                    
+                    response = new Enrollment();
+                    com.CommandText =
+                        "Select * from Enrollment e join Studies s on e.IdStudy = s.IdStudy where semester = @semesterr +1 and name = @namee";
+                    com.Parameters.AddWithValue("semesterr", request.Semester);
+                    com.Parameters.AddWithValue("namee", request.StudiesName);
+                    reader = com.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        response.IdEnrollment = (int) reader["IdEnrollment"];
+                        response.Semester = (int) reader["Semester"];
+                        response.IdStudy = (int) reader["IdStudy"];
+                        response.StartDate = reader["StartDate"].ToString();
+                    }
+                    reader.Close();
+                    com.Transaction.Commit();
+
                 }
                 catch (SqlException s)
                 {
                     com.Transaction.Rollback();
+                    result = new ObjectResult(s.Message);
+                    result.StatusCode = 400;
+                    return result;
                 }
-                com.Transaction.Commit();
+                
             }
+            result = new ObjectResult(response);
+            result.StatusCode = 201;
+            return result;
         }
 
         public Student GetStudent(string id)
@@ -120,17 +154,17 @@ namespace cw3.Services
             using (var con= new SqlConnection(ConString))
             using (var com = new SqlCommand())
             {
-                try{
+                try{ 
                     com.Connection = con;
-                con.Open();
-                com.CommandText = "select * from Student where IndexNumber=@index";
-                com.Parameters.AddWithValue("index", id);
+                    con.Open();
+                    com.CommandText = "select * from Student where IndexNumber=@index";
+                    com.Parameters.AddWithValue("index", id);
 
-                var dr = com.ExecuteReader();
-                if (!dr.HasRows)
-                {
-                    return null;
-                }
+                    var dr = com.ExecuteReader();
+                    if (!dr.HasRows)
+                    {
+                        return null;
+                    }
                 else
                 {
                     Student student = new Student();
