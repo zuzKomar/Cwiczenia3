@@ -117,7 +117,44 @@ namespace cw3.Services
 
         public Student GetStudent(string id)
         {
-          //  throw new NotImplementedException();
-        }
+            using (var con= new SqlConnection(ConString))
+            using (var com = new SqlCommand())
+            {
+                try{
+                    com.Connection = con;
+                con.Open();
+                com.CommandText = "select * from Student where IndexNumber=@index";
+                com.Parameters.AddWithValue("index", id);
+
+                var dr = com.ExecuteReader();
+                if (!dr.HasRows)
+                {
+                    return null;
+                }
+                else
+                {
+                    Student student = new Student();
+                    while (dr.Read())
+                    {
+                        student.IndexNumber = dr["IndexNumber"].ToString();
+                        student.FirstName = dr["FirstName"].ToString();
+                        student.LastName = dr["LastName"].ToString();
+                        student.BirthDate = dr["BirthDate"].ToString();
+                    }
+
+                    dr.Close();
+                    return student;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.Write(e);
+            }
+            }
+        return null;
+            }
     }
+
+       
+    
 }
