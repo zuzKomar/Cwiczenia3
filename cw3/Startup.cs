@@ -48,7 +48,7 @@ namespace cw3
               });
 
             services.AddScoped<IStudentDbService, SqlServerStudentDbService>(); //w ramach tej samej komunikacji http dla tej samej sesji bedzie zwracana ta smaa instancja
-            services.AddSingleton<IDbService, MockDbService>(); //bedzie tworzona TYLKO JEDNA instancja takiej klasy i ona bedzie zwracana
+            services.AddSingleton<IStudentDbService, SqlServerStudentDbService>(); //bedzie tworzona TYLKO JEDNA instancja takiej klasy i ona bedzie zwracana
 
            // services.AddTransient<IStudentDbService, SqlServerStudentDbService>();
             services.AddControllers(); //zarejestrowanie kontrolerow z widokami i stronami
