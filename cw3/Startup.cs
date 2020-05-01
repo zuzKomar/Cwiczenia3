@@ -35,24 +35,24 @@ namespace cw3
           services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
               .AddJwtBearer(options =>
               {
-                  options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                  options.TokenValidationParameters = new TokenValidationParameters()
                   {
                       ValidateIssuer = true,
                       ValidateAudience = true, 
                       ValidateLifetime = true,
                       ValidAudience = "Students",
-                      ValidIssuer = "Ja",
+                      ValidIssuer = "Me",
                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]))
 
                   };
               });
 
-            services.AddScoped<IStudentDbService, SqlServerStudentDbService>(); //w ramach tej samej komunikacji http dla tej samej sesji bedzie zwracana ta smaa instancja
+          
+           // services.AddScoped<IStudentDbService, SqlServerStudentDbService>(); //w ramach tej samej komunikacji http dla tej samej sesji bedzie zwracana ta smaa instancja
             services.AddSingleton<IStudentDbService, SqlServerStudentDbService>(); //bedzie tworzona TYLKO JEDNA instancja takiej klasy i ona bedzie zwracana
-
            // services.AddTransient<IStudentDbService, SqlServerStudentDbService>();
-            services.AddControllers(); //zarejestrowanie kontrolerow z widokami i stronami
-            //.AddXmlSerializerFormatters();   //content negotiation
+            services.AddControllers() //zarejestrowanie kontrolerow z widokami i stronami
+            .AddXmlSerializerFormatters();   //content negotiation
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,35 +63,36 @@ namespace cw3
                 app.UseDeveloperExceptionPage(); //zwraca stronę z dokładnym opisem błędów
             }
 
+            app.UseHttpsRedirection();
+            
             app.UseMiddleware<LoggingMiddleware>();
-
-           
-             
+            
             app.Use(async (contex, task) =>
             {
                 if (!contex.Request.Headers.ContainsKey("IndexNumber"))
                 {
                     contex.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    await contex.Response.WriteAsync("Nie podano numeru indeksu");
+                    await contex.Response.WriteAsync("Indeks nie został podany");
                     return;
                 }
             
-                string index = contex.Request.Headers["IndexNumber"].ToString();
-
-                var student = service.GetStudent(index);
-                if(student == null)
+                var index = contex.Request.Headers["IndexNumber"].ToString();
+                
+                if(!service.CheckIndexNumber(index))
                 {
                     contex.Response.StatusCode = StatusCodes.Status404NotFound;
-                    await contex.Response.WriteAsync("Student not found");
+                    await contex.Response.WriteAsync("Student o takim indeksie nie istnieje");
                     return;
                 }
                 
                 await task();
             });
 
-            app.UseHttpsRedirection();
+           
             app.UseRouting(); //kiedy przychodzi zadanie get na api/students---studentsController---getStudents()
-           // app.UseAuthentication();
+            
+            app.UseAuthentication();
+            
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

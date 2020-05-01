@@ -1,5 +1,7 @@
 ﻿
 
+using System.Dynamic;
+
 namespace cw3.Models
 {
     public class Student
@@ -10,6 +12,8 @@ namespace cw3.Models
         public string BirthDate { get; set; }
         public string StudiesName{ get; set; }
         public string Semester { get; set; }
+
+      //  public string Password { get; set; }
 
     }
 }

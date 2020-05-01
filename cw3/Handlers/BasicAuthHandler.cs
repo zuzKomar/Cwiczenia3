@@ -12,7 +12,12 @@ namespace cw3.Handlers
 {
     public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        public BasicAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)//przekazanie do konstruktora z nadklasy
+        public BasicAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
+            ILoggerFactory logger,
+            UrlEncoder encoder, 
+            ISystemClock clock
+         //   IStudentDbServive service
+                ) : base(options, logger, encoder, clock)//przekazanie do konstruktora z nadklasy
         {
             
         }
@@ -20,9 +25,9 @@ namespace cw3.Handlers
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync() //metoda asynchroniczna
         {
             if (!Request.Headers.ContainsKey("Authorization")) //jesli nasz request nie zawiera nagłówka Authorization
-                return AuthenticateResult.Fail("Missing authorization header!"); //zwraca błąd
+                return AuthenticateResult.Fail("Missing authorization header!"); //zwraca info o niepowodzeniu autoryzacji
 
-            //Authorizatio: Basic akdsnqkdjqow--
+            //Authorization : Basic akdsnqkdjqow--
             var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]); //wyciagamy nagłówek do uwierzytelnienia
             var credentialsBytes = Convert.FromBase64String(authHeader.Parameter);//wyciagamy login i haslo z akdsnqkdjqow-- i wrzucamy do tablicy byte[] (mamy surowy ciąg bytów)
             var credentials = Encoding.UTF8.GetString(credentialsBytes).Split(":"); //zamieniamy ciąg bytów na tablice 2 elementowa typu String <login i hasło> kodowanie
@@ -31,22 +36,19 @@ namespace cw3.Handlers
             {
                 return AuthenticateResult.Fail("Incorrect authorization header value!");
             }
-
-           
             
-          //  //TODO chec credentials in DB-> zakładamy, że są poprawne
 
             var claims = new[] //informacje o użytkowniku 
             {
                 new Claim(ClaimTypes.NameIdentifier, "1"),
-                new Claim(ClaimTypes.Name, "jan"),
+                new Claim(ClaimTypes.Name, "Zuzanna"), //login uzytkownika
                 new Claim(ClaimTypes.Role, "admin"),
                 new Claim(ClaimTypes.Role, "student")
             };
             
-            var identity = new ClaimsIdentity(claims, Scheme.Name); //"dowód osobisty"
+            var identity = new ClaimsIdentity(claims, Scheme.Name); //"dowód osobisty" -identyfikuje uzytkownika
             var principal = new ClaimsPrincipal(identity); //moze zawierac wiele elementow jak dowód osobisty
-            var ticket = new AuthenticationTicket(principal, Scheme.Name); // udzielenie dostępu temu użytkownikowi 
+            var ticket = new AuthenticationTicket(principal, Scheme.Name); // udzielenie dostępu temu użytkownikowi, tworzac mu jego ticket
             
             return AuthenticateResult.Success(ticket); //zwraca dostęp uztkownikowi z pomocą ticket u
         }

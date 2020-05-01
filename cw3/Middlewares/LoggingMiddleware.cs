@@ -15,7 +15,7 @@ namespace cw3.Middlewares
             _next = next;
         }
 
-        public async Task InvokeAsynk(HttpContext httpContext, IDbService service)
+        public async Task InvokeAsynk(HttpContext httpContext)
         {
            httpContext.Request.EnableBuffering();
 
@@ -29,8 +29,11 @@ namespace cw3.Middlewares
                using (StreamReader reader = new StreamReader(httpContext.Request.Body, Encoding.UTF8, true, 1024, true))
                {
                    bodyStr = await reader.ReadToEndAsync();
+                   httpContext.Request.Body.Position = 0;
                }
                //logowanie do pliku
+               string[] lines = {metoda, sciezka, queryString, bodyStr};
+               System.IO.File.AppendAllLines("requestsLog.txt",lines);
            }
 
            await _next(httpContext);
