@@ -29,40 +29,35 @@ namespace cw3
 
         public void ConfigureServices(IServiceCollection services)//globalny panel konfiguracji aplikacji
         {
-         //   services.AddAuthentication("AuthenticationBasic")
-          //      .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>("AuthenticationBasic", null);
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateLifetime = true, //czy token nie wygasł
+                    ValidateAudience = true,
+                    ValidAudience = "Students",
+                    ValidIssuer = "Gakko",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]))
+                };
+            });
 
-          services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-              .AddJwtBearer(options =>
-              {
-                  options.TokenValidationParameters = new TokenValidationParameters()
-                  {
-                      ValidateIssuer = true,
-                      ValidateAudience = true, 
-                      ValidateLifetime = true,
-                      ValidAudience = "Students",
-                      ValidIssuer = "Me",
-                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]))
 
-                  };
-              });
-
-          
-           // services.AddScoped<IStudentDbService, SqlServerStudentDbService>(); //w ramach tej samej komunikacji http dla tej samej sesji bedzie zwracana ta smaa instancja
-            services.AddSingleton<IStudentDbService, SqlServerStudentDbService>(); //bedzie tworzona TYLKO JEDNA instancja takiej klasy i ona bedzie zwracana
-           // services.AddTransient<IStudentDbService, SqlServerStudentDbService>();
+            services.AddTransient<IDbService, MockDbService>(); 
+            services.AddSingleton<IStudentDbService, SqlServerStudentDbService>();
             services.AddControllers() //zarejestrowanie kontrolerow z widokami i stronami
             .AddXmlSerializerFormatters();   //content negotiation
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IStudentDbService service) //konfigurowanie middlewarow
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SqlServerStudentDbService service) //konfigurowanie middlewarow
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage(); //zwraca stronę z dokładnym opisem błędów
             }
-
+            
+           
             app.UseHttpsRedirection();
             
             app.UseMiddleware<LoggingMiddleware>();
@@ -88,13 +83,9 @@ namespace cw3
                 await task();
             });
 
-           
             app.UseRouting(); //kiedy przychodzi zadanie get na api/students---studentsController---getStudents()
-            
             app.UseAuthentication();
-            
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }

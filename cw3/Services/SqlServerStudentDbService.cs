@@ -18,7 +18,7 @@ namespace cw3.Services
             _Configuration = configuration;
 
         }
-        public async  Task<IActionResult> EnrollStudent(EnrollStudentRequest request)
+        public async Task<IActionResult> EnrollStudent(EnrollStudentRequest request)
         {
             var st = new Student();
             st.IndexNumber = request.IndexNumber;

@@ -22,7 +22,7 @@ namespace cw3.Handlers
             
         }
 
-        protected override async Task<AuthenticateResult> HandleAuthenticateAsync() //metoda asynchroniczna
+        protected override async Task<AuthenticateResult> HandleAuthenticateAsync() 
         {
             if (!Request.Headers.ContainsKey("Authorization")) //jesli nasz request nie zawiera nagłówka Authorization
                 return AuthenticateResult.Fail("Missing authorization header!"); //zwraca info o niepowodzeniu autoryzacji

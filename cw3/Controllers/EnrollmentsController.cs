@@ -10,7 +10,6 @@ using cw3.Handlers;
 using cw3.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters.Xml;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -76,12 +75,14 @@ namespace cw3.Controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, request.IndexNumber),
                 new Claim(ClaimTypes.Name, "Pjatk"), 
+                new Claim(ClaimTypes.Role, "admin"),
+                new Claim(ClaimTypes.Role, "student"), 
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: "Me",
+                issuer: "Gakko",
                 audience: "Students",
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(10),
@@ -90,8 +91,8 @@ namespace cw3.Controllers
 
             return Ok(new
             {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                refreshToken = Guid.NewGuid()
+                token = new JwtSecurityTokenHandler().WriteToken(token), //żyje 5-10 minut
+                refreshToken = Guid.NewGuid() //losowy, dlugi ciąg znaków zapisywany w bazie danych, uzywany do wygenerowania nowego Tokena bez koniecznosci ponownego logowania się
             });
         }
     }

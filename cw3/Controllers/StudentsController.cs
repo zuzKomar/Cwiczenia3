@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using cw3.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -34,7 +35,7 @@ namespace cw3.Controllers
         }
 
         [HttpGet]
-        //[Authorize] //metoda dostepna tylko dla zalogowanych userów 
+        [Authorize] //metoda dostepna tylko dla zalogowanych userów 
         public IActionResult GetStudents()
         {
             
